@@ -20,6 +20,10 @@ call plug#begin('~/.config/nvim/autoload/plugged')
   " :NoAutoFormatBuffer -> disable current buffer formatting
   Plug 'google/vim-maktaba'
   Plug 'google/vim-codefmt'
+
+
+  " vim python docstring
+  Plug 'heavenshell/vim-pydocstring', { 'do': 'make install' }
   
   """""" end ngocjr7 plugin
 
@@ -107,11 +111,11 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     " Echo doc
     " Plug 'Shougo/echodoc.vim'
     " Interactive code
-    Plug 'ChristianChiarulli/codi.vim'
+    Plug 'metakirby5/codi.vim'
     " Vim Wiki
     " Plug 'https://github.com/vimwiki/vimwiki.git'
 
-    Plug 'mcantrell/vim-virtualenv'
+    "Plug 'jmcantrell/vim-virtualenv'
     
     " Cool Icons
     Plug 'ryanoasis/vim-devicons'

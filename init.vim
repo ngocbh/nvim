@@ -39,8 +39,8 @@ else
   source $HOME/.config/nvim/plug-config/closetags.vim
   source $HOME/.config/nvim/plug-config/floaterm.vim
   source $HOME/.config/nvim/plug-config/vista.vim
-  " luafile $HOME/.config/nvim/lua/plug-colorizer.lua
-  " source $HOME/.config/nvim/plug-config/easymotion.vim
+  "luafile $HOME/.config/nvim/lua/plug-colorizer.lua
+  "source $HOME/.config/nvim/plug-config/easymotion.vim
 endif
 
 source $HOME/.config/nvim/ngocbh.vim
@@ -51,6 +51,12 @@ if !empty(glob("./paths.vim"))
   source $HOME/.config/nvim/paths.vim
 endif
 let g:polyglot_disabled = ['csv']
+
+" Remap keys for gotos
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 
 " Python
 " https://realpython.com/python-debugging-pdb/ " breakpoint syntax is really cool
