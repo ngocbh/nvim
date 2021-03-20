@@ -1,5 +1,8 @@
 # Nvim Mach 2
 
+## Vim basic command
+move cursor: https://docs.oracle.com/cd/E19683-01/806-7612/editorvi-43/index.html#:~:text=Moving%20One%20Word,next%20or%20previous%20blank%20space.
+
 ![Nvim Mach 2 pic](./utils/images/nvim.png)
 
 ## Install in one command

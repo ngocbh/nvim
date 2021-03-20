@@ -28,20 +28,26 @@
   "coc.preferences.formatOnSaveFiletypes": [],
   "coc.preferences.hoverTarget": "float",
 
+  // tab drop when using gd
+  "coc.preferences.jumpCommand": "drop",
+
   // python config
   "python.linting.enabled": true,
-  "python.linting.pylintEnabled": true,
-  "python.formatting.provider": "autopep8",
+  // "python.linting.flake8Enabled": true,
+  // "python.linting.mypyEnabled": true,
+  // "python.linting.pylintEnabled": true,
   // "python.linting.pylintArgs": ["--generate-members"],
+  // "pyright.disableDiagnostics": true,
+  "python.formatting.provider": "autopep8",
   //"python.formatting.blackPath": "~/.miniconda/envs/neovim/bin/black",
   // "python.linting.pylintPath": "~/.miniconda/envs/neovim/bin/pylint",
   "python.condaPath": "~/.miniconda/bin/conda",
   "python.sortImports.path": "~/.miniconda/envs/neovim/bin/isort",
-  "python.jediPath": "~/.miniconda/envs/neovim/lib/python3.8/site-packages",
+  // "python.jediPath": "~/.miniconda/envs/neovim/lib/python3.8/site-packages",
 
   // snippets
   "snippets.ultisnips.directories": ["UltiSnips", "~/.config/nvim/snips"],
-  //"snippets.userSnippetsDirectory": "~/.config/nvim/snips",
+  "snippets.userSnippetsDirectory": "~/.config/nvim/snips",
 
   // emmet
   "emmet.includeLanguages": {
@@ -55,7 +61,7 @@
   "explorer.previewAction.onHover": false,
   "explorer.icon.enableVimDevicons": false,
   "explorer.keyMappings": {
-    "<cr>": ["expandable?", "expand", "open"],
+    "<cr>": ["wait", "expanded?", "collapse", "expand"],
     "v": "open:vsplit"
   },
 
@@ -65,8 +71,76 @@
       "args": ["start"],
       "filetypes": ["sh"],
       "ignoredRootPaths": ["~"]
+    },
+    "python": {
+    "command": "python",
+    "args": [
+      "-mpyls",
+      "-vv",
+      "--log-file",
+      "/tmp/lsp_python.log"
+    ],
+    "trace.server": "verbose",
+    "filetypes": [
+      "python"
+    ],
+    "settings": {
+      "pyls": {
+        "enable": true,
+        "trace": {
+          "server": "verbose"
+        },
+        "commandPath": "",
+        "configurationSources": [
+          "pycodestyle"
+        ],
+        "plugins": {
+          "jedi_completion": {
+            "enabled": true
+          },
+          "jedi_hover": {
+            "enabled": true
+          },
+          "jedi_references": {
+            "enabled": true
+          },
+          "jedi_signature_help": {
+            "enabled": true
+          },
+          "jedi_symbols": {
+            "enabled": true,
+            "all_scopes": true
+          },
+          "mccabe": {
+            "enabled": true,
+            "threshold": 15
+          },
+          "preload": {
+            "enabled": true
+          },
+          "pycodestyle": {
+            "enabled": true
+          },
+          "pydocstyle": {
+            "enabled": false,
+            "match": "(?!test_).*\\.py",
+            "matchDir": "[^\\.].*"
+          },
+          "pyflakes": {
+            "enabled": true
+          },
+          "rope_completion": {
+            "enabled": true
+          },
+          "yapf": {
+            "enabled": true
+          }
+        }
+      }
     }
-  },
+  }
+},
+
 
   // TODO b:coc_suggest_disable=1 GOYO
   // TODO add to paths.vim g:coc_node_path

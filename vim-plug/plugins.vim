@@ -69,7 +69,7 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     " Closetags
     Plug 'alvan/vim-closetag'
     " Themes
-    Plug 'christianchiarulli/onedark.vim'
+    Plug 'joshdick/onedark.vim'
     " Plug 'kaicataldo/material.vim'
     " Plug 'NLKNguyen/papercolor-theme'
     " Plug 'tomasiser/vim-code-dark'
@@ -106,6 +106,7 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     " Snippets
     Plug 'honza/vim-snippets'
     Plug 'mattn/emmet-vim'
+    Plug 'SirVer/ultisnips'
     " Better Comments
     " Plug 'jbgutierrez/vim-better-comments'
     " Echo doc
