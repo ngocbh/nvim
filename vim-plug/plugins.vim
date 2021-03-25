@@ -106,7 +106,8 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     " Snippets
     Plug 'honza/vim-snippets'
     Plug 'mattn/emmet-vim'
-    Plug 'SirVer/ultisnips'
+    
+    " Plug 'SirVer/ultisnips'
     " Better Comments
     " Plug 'jbgutierrez/vim-better-comments'
     " Echo doc
