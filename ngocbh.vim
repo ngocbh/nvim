@@ -4,9 +4,9 @@ set cindent
 
 let g:tex_flavor = 'latex'
 
-let g:pydocstring_formatter = 'google'
+let g:pydocstring_formatter = 'numpy'
 
-nmap <silent> <C-n> <Plug>(pydocstring)
+nmap <silent> <C-_> <Plug>(pydocstring)
 
 
 " Remap keys for gotos
@@ -19,6 +19,11 @@ nnoremap <silent> <S-l> w
 nnoremap <silent> <S-h> b
 nnoremap <silent> <S-j> <S-l>
 nnoremap <silent> <S-k> <S-h>
+
+vnoremap <silent> <S-l> w
+vnoremap <silent> <S-h> b
+vnoremap <silent> <S-j> <S-l>
+vnoremap <silent> <S-k> <S-h>
 
 set number relativenumber
 
@@ -38,3 +43,13 @@ inoremap <silent><expr> <c-space> coc#refresh()
 
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+
+" move block up/down in visual and normal mode"
+" Normal mode
+nnoremap <C-j> :m .+1<CR>==
+nnoremap <C-k> :m .-2<CR>==
+
+" Visual mode
+vnoremap <C-j> :m '>+1<CR>gv=gv
+vnoremap <C-k> :m '<-2<CR>gv=gv
