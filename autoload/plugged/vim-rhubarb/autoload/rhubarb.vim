@@ -47,11 +47,7 @@ function! s:repo_homepage() abort
   if exists('b:rhubarb_homepage')
     return b:rhubarb_homepage
   endif
-  if exists('*FugitiveRemoteUrl')
-    let remote = FugitiveRemoteUrl()
-  else
-    let remote = fugitive#repo().config('remote.origin.url')
-  endif
+  let remote = FugitiveRemoteUrl()
   let homepage = rhubarb#HomepageForUrl(remote)
   if !empty(homepage)
     let b:rhubarb_homepage = homepage
@@ -65,8 +61,8 @@ endfunction
 function! s:credentials() abort
   if !exists('g:github_user')
     let g:github_user = $GITHUB_USER
-    if g:github_user ==# '' && exists('*FugitiveConfig')
-      let g:github_user = FugitiveConfig('github.user', '')
+    if g:github_user ==# '' && exists('*FugitiveConfigGet')
+      let g:github_user = FugitiveConfigGet('github.user', '')
     endif
     if g:github_user ==# ''
       let g:github_user = $LOGNAME
@@ -74,8 +70,8 @@ function! s:credentials() abort
   endif
   if !exists('g:github_password')
     let g:github_password = $GITHUB_PASSWORD
-    if g:github_password ==# '' && exists('*FugitiveConfig')
-      let g:github_password = FugitiveConfig('github.password', '')
+    if g:github_password ==# '' && exists('*FugitiveConfigGet')
+      let g:github_password = FugitiveConfigGet('github.password', '')
     endif
   endif
   return g:github_user.':'.g:github_password
@@ -274,9 +270,9 @@ function! rhubarb#FugitiveUrl(...) abort
   elseif get(opts, 'type', '') ==# 'blob' || opts.path =~# '[^/]$'
     let escaped_commit = substitute(commit, '#', '%23', 'g')
     let url = root . '/blob/' . escaped_commit . '/' . path
-    if get(opts, 'line2') && opts.line1 == opts.line2
+    if get(opts, 'line2') > 0 && get(opts, 'line1') == opts.line2
       let url .= '#L' . opts.line1
-    elseif get(opts, 'line2')
+    elseif get(opts, 'line1') > 0 && get(opts, 'line2') > 0
       let url .= '#L' . opts.line1 . '-L' . opts.line2
     endif
   else

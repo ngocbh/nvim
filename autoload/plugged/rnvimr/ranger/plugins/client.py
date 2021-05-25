@@ -3,7 +3,6 @@ Make ranger as a client to neovim
 
 """
 import os
-import pynvim
 from . import rutil
 
 
@@ -29,10 +28,8 @@ class Client():
         Attach neovim session by socket path.
 
         """
-        socket_path = os.getenv('NVIM_LISTEN_ADDRESS')
-
-        if socket_path:
-            self.nvim = pynvim.attach('socket', path=socket_path)
+        server_name = os.getenv('NVIM_LISTEN_ADDRESS')
+        self.nvim = rutil.attach_nvim(server_name)
 
     def get_window_info(self):
         """
@@ -74,7 +71,7 @@ class Client():
         """
         if not os.path.exists(target_name):
             return
-        self.nvim.call('rnvimr#rpc#do_saveas', bufnr, target_name, async_=True)
+        self.nvim.call('rnvimr#rpc#do_saveas', bufnr, target_name, async_=False)
 
     def move_buf(self, src, dst):
         """
@@ -121,18 +118,25 @@ class Client():
         :param path str: absolute path
         :param noautocmd bool: whether use noautocmd command
         """
+        self.nvim.command('noautocmd wincmd p')
         self.nvim.command('{} cd {}'.format('noautocmd' if noautocmd else '', path))
+        self.nvim.command('noautocmd wincmd p')
+        self.nvim.command('startinsert')
 
-    def rpc_edit(self, files, edit=None, start_line=0):
+    def rpc_edit(self, files, edit=None, start_line=0, picker=None):
         """
         Edit ranger target files in neovim though RPC.
 
         :param files list: list of file name
         :param edit str: neovim edit command
         :param start_line int: start line number
+        :param picker bool: whether to become a picker
         """
+        args = [edit, start_line]
         if not files:
             return
 
-        self.nvim.call('rnvimr#rpc#edit', edit, start_line,
-                       [str(file) for file in files], async_=True)
+        args.append([str(file) for file in files])
+        if picker is not None:
+            args.append(picker)
+        self.nvim.call('rnvimr#rpc#edit', *args, async_=True)

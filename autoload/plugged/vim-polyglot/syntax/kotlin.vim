@@ -5,7 +5,7 @@ endif
 " Vim syntax file
 " Language: Kotlin
 " Maintainer: Alexander Udalov
-" Latest Revision: 17 February 2021
+" Latest Revision: 11 April 2021
 
 if exists('b:current_syntax')
     finish
@@ -61,7 +61,7 @@ syn match ktModifier "\v<(data|value)>\ze\@=.*<class>"
 syn match ktModifier "\v<(tailrec|operator|infix|suspend)>\ze\@=.*<fun>"
 syn match ktModifier "\v<(const)>\ze\@=.*<val>"
 syn match ktModifier "\v<(lateinit)>\ze\@=.*<var>"
-syn match ktModifier "\v<(internal|private|protected|public)>\ze\@=.*<(class|fun|val|var|typealias)>"
+syn match ktModifier "\v<(internal|private|protected|public)>\ze\@=.*<(class|object|fun|val|var|typealias|constructor)>"
 
 syn match ktOperator "\v\?:|::|\<\=? | \>\=?|[!=]\=\=?|<as>\??|[-!%&*+/|]"
 
@@ -78,8 +78,8 @@ syn match ktComment "/\*\*/"
 
 syn match ktSpecialCharError "\v\\." contained
 syn match ktSpecialChar "\v\\([tbnr'"$\\]|u\x{4})" contained
-syn region ktString start='"' skip='\\"' end='"' contains=ktSimpleInterpolation,ktComplexInterpolation,ktSpecialChar,ktSpecialCharError
-syn region ktString start='"""' end='""""*' contains=ktSimpleInterpolation,ktComplexInterpolation
+syn region ktString start='"' skip='\\"' end='"' contains=ktSimpleInterpolation,ktComplexInterpolation,ktSpecialChar,ktSpecialCharError,@Spell
+syn region ktString start='"""' end='""""*' contains=ktSimpleInterpolation,ktComplexInterpolation,@Spell
 syn match ktCharacter "\v'[^']*'" contains=ktSpecialChar,ktSpecialCharError
 syn match ktCharacter "\v'\\''" contains=ktSpecialChar
 syn match ktCharacter "\v'[^\\]'"

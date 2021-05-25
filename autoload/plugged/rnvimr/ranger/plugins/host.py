@@ -4,9 +4,9 @@ Make ranger as a host for neovim
 """
 import os
 import threading
-import pynvim
 import ranger
 from .service import Service, ServiceRunner, ServiceLoader
+from .rutil import attach_nvim
 
 
 class Host():
@@ -28,22 +28,22 @@ class Host():
         # job start with pty option in neovim only use stdout to communicate
         if os.getenv('RNVIMR_CHECKHEALTH'):
             print('RNVIMR_CHECKHEALTH', self.fm.host_id, 'RNVIMR_CHECKHEALTH')
-            self.nvim.call('rnvimr#rpc#set_host_chan_id', self.fm.host_id)
+            self.nvim.call('rnvimr#rpc#host_ready', self.fm.host_id)
         else:
-            self.nvim.call('rnvimr#rpc#set_host_chan_id', self.fm.host_id)
+            self.nvim.call('rnvimr#rpc#host_ready', self.fm.host_id)
 
     def hook_ready(self):
         """
         Initialize host via ranger hook_ready.
+        Manually redrawing UI can make users feel faster.
 
         """
 
-        socket_path = os.getenv('NVIM_LISTEN_ADDRESS')
-
-        if socket_path:
-            self.nvim = pynvim.attach('socket', path=socket_path)
+        self.fm.ui.redraw()
+        server_name = os.getenv('NVIM_LISTEN_ADDRESS')
+        self.nvim = attach_nvim(server_name)
+        if self.nvim:
             self.fm.service = Service()
-
             # call neovim only once as a host in order to get channel id.
             self.fm.host_id = self.nvim.request('nvim_get_api_info')[0]
 

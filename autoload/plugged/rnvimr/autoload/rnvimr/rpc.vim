@@ -26,10 +26,6 @@ function! rnvimr#rpc#attach_file(file) abort
     endif
 endfunction
 
-function! rnvimr#rpc#set_host_chan_id(id) abort
-    let s:host_chan_id = a:id
-endfunction
-
 function! rnvimr#rpc#reset() abort
     let s:host_chan_id = -1
 endfunction
@@ -41,11 +37,24 @@ function! rnvimr#rpc#attach_file_once(file) abort
     endif
 endfunction
 
-function! rnvimr#rpc#destory() abort
-    return rpcrequest(s:host_chan_id, 'destory')
+function! rnvimr#rpc#clear_image() abort
+    if s:host_chan_id == -1
+        return
+    endif
+    return rpcnotify(s:host_chan_id, 'clear_image')
+endfunction
+
+function! rnvimr#rpc#destroy() abort
+    if s:host_chan_id == -1
+        return
+    endif
+    return rpcrequest(s:host_chan_id, 'destroy')
 endfunction
 
 function! rnvimr#rpc#ranger_cmd(...) abort
+    if s:valid_setup()
+        return
+    endif
     if !empty(a:000)
         call rpcnotify(s:host_chan_id, 'eval_cmd', a:000)
     endif
@@ -53,6 +62,15 @@ endfunction
 
 " ranger to neovim
 " =================================================================================================
+function! rnvimr#rpc#host_ready(id) abort
+    let s:host_chan_id = a:id
+    if get(g:, 'rnvimr_draw_border', 1) && (has('mac') || has('macunix'))
+        let layout = nvim_win_get_config(rnvimr#context#winid())
+        let layout.width += 1
+        call nvim_win_set_config(rnvimr#context#winid(), layout)
+    endif
+endfunction
+
 function! rnvimr#rpc#list_buf_name_nr() abort
     let buf_dict = {}
     for buf in filter(getbufinfo({'buflisted': 1}), 'v:val.changed == 0')
@@ -64,29 +82,37 @@ endfunction
 function! rnvimr#rpc#do_saveas(bufnr, target_name) abort
     let bw_enabled = get(g:, 'rnvimr_enable_bw', 0)
     noautocmd wincmd p
+    let cur_bufnr = bufnr('%')
+    let alt_bufnr = bufnr('#')
     if bufloaded(a:bufnr)
-        let cur_bufnr = bufnr('%')
         execute 'noautocmd silent! buffer ' . a:bufnr
         execute 'noautocmd saveas! ' . a:target_name
         if bw_enabled
             noautocmd bwipeout #
+            if alt_bufnr > 0
+                execute 'noautocmd silent buffer ' . alt_bufnr
+            endif
         endif
-        execute 'noautocmd silent! buffer ' . cur_bufnr
+        execute 'noautocmd silent buffer ' . cur_bufnr
     else
         let bufname = fnamemodify(bufname(a:bufnr), ':p')
         call rnvimr#util#sync_undo(bufname, a:target_name, v:true)
         if bw_enabled
             execute 'noautocmd bwipeout ' . a:bufnr
+            if alt_bufnr > 0
+                execute 'noautocmd silent buffer ' . alt_bufnr
+                execute 'noautocmd silent buffer ' . cur_bufnr
+            endif
         endif
         execute 'noautocmd badd ' . a:target_name
     endif
-    noautocmd call nvim_set_current_win(rnvimr#context#get_win_handle())
+    noautocmd call nvim_set_current_win(rnvimr#context#winid())
     noautocmd startinsert
 endfunction
 
-function! rnvimr#rpc#edit(edit, start_line, files) abort
+function! rnvimr#rpc#edit(edit, start_line, files, ...) abort
     let files = map(copy(a:files), 'fnameescape(v:val)')
-    let picker_enabled = get(g:, 'rnvimr_enable_picker', 0)
+    let picker_enabled = empty(a:000) ? get(g:, 'rnvimr_enable_picker', 0) : a:1
     if picker_enabled
         close
     else
@@ -95,10 +121,11 @@ function! rnvimr#rpc#edit(edit, start_line, files) abort
         wincmd p
     endif
     if !empty(a:edit)
-        if bufname('%') != ''
-            execute 'noautocmd ' . a:edit
+        if bufname('%') == ''
+            execute 'silent! edit ' . files[0]
+        else
+            execute 'silent! ' . a:edit . files[0]
         endif
-        execute 'silent! edit ' . files[0]
     else
         if a:start_line == 0
             execute 'silent! edit ' . files[0]
@@ -127,13 +154,13 @@ endfunction
 
 function! rnvimr#rpc#get_window_info() abort
     try
-        return nvim_win_get_config(rnvimr#context#get_win_handle())
+        return nvim_win_get_config(rnvimr#context#winid())
     catch /^Vim\%((\a\+)\)\=:E5555/
         return {}
     endtry
 endfunction
 
 function! rnvimr#rpc#set_winhl(winhl) abort
-    return setwinvar(rnvimr#context#get_win_handle(), '&winhighlight',
-                \ getbufvar(rnvimr#context#get_buf_handle(), a:winhl))
+    return setwinvar(rnvimr#context#winid(), '&winhighlight',
+                \ getbufvar(rnvimr#context#bufnr(), a:winhl))
 endfunction

@@ -1,29 +1,31 @@
 # Rnvimr
 
-## Change default branch from master to main
-
-`vim-plug` support updating repo from the default branch for now.
-
-How to update rnvimr from now on?
-
-1. Run `:PlugUpgrade` to upgrade vim-plug;
-2. Delete old rnvimr repo;
-3. Run `:PlugInstall` to install rnivmr again;
-
-> Install rnvimr by `Plug 'kevinhwang91/rnvimr'`.
-
 Rnvimr is a NeoVim plugin that allows you to use Ranger in a floating window.
 
 Different than other Ranger vim-plugins, Rnvimr gives you full control over Ranger.
 It uses [RPC](https://neovim.io/doc/user/api.html#RPC) to communicate with Ranger.
 
-**Since Rnvimr requires RPC, this plugin does not support Vim for now.**
-
 <p align="center">
     <img width="960px" src="https://user-images.githubusercontent.com/17562139/94383438-a3be7680-0172-11eb-9f57-f3cd88aff0c0.gif">
 </p>
 
-> [vimade](https://github.com/TaDaa/vimade) was used to fade interactive windows.
+**This plugin does not support Vim.**
+
+## Table of contents
+
+* [Requirements](#requirements)
+* [Features](#features)
+* [Installation](#installation)
+  * [Dependence](#dependence)
+  * [Plugin](#plugin)
+  * [CheckHealth (optional)](#checkhealth-(optional))
+* [Usage](#usage)
+  * [Demonstration](#demonstration)
+  * [Example configuration](#example-configuration)
+    * [Minimal configuration](#minimal-configuration)
+    * [Advanced configuration](#advanced-configuration)
+* [FAQ](#faq)
+* [License](#license)
 
 ## Requirements
 
@@ -115,7 +117,7 @@ Using `:RnvimrResize` to cycle the preset layouts.
 
 Pressing `Enter` to open a file in Ranger.
 
-Rnvimr also supports `CTRL-T`/`CTRL-X`/`CTRL-V` key bindingsthat allow you to
+Rnvimr also supports `ctrl-t`/`ctrl-x`/`ctrl-v` key bindings that allow you to
 open up a file in a new tab, a new horizontal split, or in a new vertical split.
 
 Pressing `q` in Ranger simply hides the floating window.
@@ -180,6 +182,9 @@ let g:rnvimr_border_attr = {'fg': 14, 'bg': -1}
 " Make Neovim wipe the buffers corresponding to the files deleted by Ranger
 let g:rnvimr_enable_bw = 1
 
+" Add a shadow window, value is equal to 100 will disable shadow
+let g:rnvimr_shadow_winblend = 70
+
 " Draw border with both
 let g:rnvimr_ranger_cmd = 'ranger --cmd="set draw_borders both"'
 
@@ -241,8 +246,19 @@ let g:rnvimr_presets = [
             \ {'width': 1.000, 'height': 0.500, 'col': 0, 'row': 0.5}
             \ ]
 
+" Fullscreen for initial layout
+" let g:rnvimr_layout = {
+"            \ 'relative': 'editor',
+"            \ 'width': &columns,
+"            \ 'height': &lines - 2,
+"            \ 'col': 0,
+"            \ 'row': 0,
+"            \ 'style': 'minimal'
+"            \ }
+"
 " Only use initial preset layout
 " let g:rnvimr_presets = [{}]
+
 ```
 
 For more information, please refer to [:help rnvimr](./doc/rnvimr.txt),
@@ -271,8 +287,8 @@ Q: CheckHealth says RPC timeout.
 
 A: Install [Dependence](#Dependence) first,
 run ex command`:echo $NVIM_LISTEN_ADDRESS` to
-confirm that the message output is in a format like this `/tmp/nvimIYj484/0`,
-Rnvimr needs this environment variable as the socket path.
+confirm that the message output is in a format like this `/tmp/nvimIYj484/0` or a tcp format
+`address:port`, Rnvimr needs this environment variable.
 
 Q: How can I go back to the previous directory in Ranger after attaching a new file?
 
@@ -286,6 +302,11 @@ Q: `let g:rnvimr_enable_ex = 1` can't work as expected.
 
 A: Turn off the option of other plugins (like `let g:NERDTreeHijackNetrw = 0` which is used in
 NERDTree) or uninstall the conflicting plugins.
+
+Q: In MacOS, I must press `<ctrl-v>` twice to split window vertically.
+
+A: Please refer to [#71](https://github.com/kevinhwang91/rnvimr/issues/71) and use `rnvimr_action`
+variable to remap `<ctrl-v>` as a workaround for the issue.
 
 ## License
 

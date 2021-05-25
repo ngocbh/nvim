@@ -161,7 +161,7 @@ The following command allows you to compile and run your C code in the floaterm 
 - If `floaterm_name` is given, kill the floaterm instance named `floaterm_name`.
 - If `!` is given, kill all floaterms
 
-#### `:FloatermSend [--name=floaterm_name] [cmd]` Send command to a job in floaterm.
+#### `:FloatermSend[!] [--name=floaterm_name] [cmd]` Send command to a job in floaterm.
 
 - If `--name=floaterm_name` is given, send lines to the floaterm instance
   whose `name` is `floaterm_name`. Otherwise use the current floaterm.
@@ -495,6 +495,22 @@ command! NNN FloatermNew nnn
 <details>
 <summary>Demo</summary>
 <img src="https://user-images.githubusercontent.com/20282795/91380278-322f9780-e857-11ea-8b1c-d40fc91bb07d.gif"/>
+</details>
+
+
+#### [xplr](https://github.com/sayanarijit/xplr)
+
+There is also an [xplr wrapper](./autoload/floaterm/wrapper/xplr.vim)
+
+Try `:FloatermNew xplr` or define a new command:
+
+```vim
+command! XPLR FloatermNew xplr
+```
+
+<details>
+<summary>Demo</summary>
+<img src="https://s4.gifyu.com/images/ft-xplr9173d6a849e3f6b9.gif"/>
 </details>
 
 #### [lf](https://github.com/gokcehan/lf)

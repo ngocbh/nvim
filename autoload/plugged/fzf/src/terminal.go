@@ -831,16 +831,33 @@ func (t *Terminal) resizeWindows() {
 		createPreviewWindow := func(y int, x int, w int, h int) {
 			pwidth := w
 			pheight := h
-			if t.previewOpts.border != tui.BorderNone {
-				previewBorder := tui.MakeBorderStyle(t.previewOpts.border, t.unicode)
-				t.pborder = t.tui.NewWindow(y, x, w, h, true, previewBorder)
+			var previewBorder tui.BorderStyle
+			if t.previewOpts.border == tui.BorderNone {
+				previewBorder = tui.MakeTransparentBorder()
+			} else {
+				previewBorder = tui.MakeBorderStyle(t.previewOpts.border, t.unicode)
+			}
+			t.pborder = t.tui.NewWindow(y, x, w, h, true, previewBorder)
+			switch t.previewOpts.border {
+			case tui.BorderSharp, tui.BorderRounded:
 				pwidth -= 4
 				pheight -= 2
 				x += 2
 				y += 1
-			} else {
-				previewBorder := tui.MakeTransparentBorder()
-				t.pborder = t.tui.NewWindow(y, x, w, h, true, previewBorder)
+			case tui.BorderLeft:
+				pwidth -= 2
+				x += 2
+			case tui.BorderRight:
+				pwidth -= 2
+			case tui.BorderTop:
+				pheight -= 1
+				y += 1
+			case tui.BorderBottom:
+				pheight -= 1
+			case tui.BorderHorizontal:
+				pheight -= 2
+				y += 1
+			case tui.BorderVertical:
 				pwidth -= 4
 				x += 2
 			}
@@ -848,9 +865,13 @@ func (t *Terminal) resizeWindows() {
 		}
 		verticalPad := 2
 		minPreviewHeight := 3
-		if t.previewOpts.border == tui.BorderNone {
+		switch t.previewOpts.border {
+		case tui.BorderNone, tui.BorderVertical, tui.BorderLeft, tui.BorderRight:
 			verticalPad = 0
 			minPreviewHeight = 1
+		case tui.BorderTop, tui.BorderBottom:
+			verticalPad = 1
+			minPreviewHeight = 2
 		}
 		switch t.previewOpts.position {
 		case posUp:
@@ -1722,24 +1743,22 @@ func (t *Terminal) executeCommand(template string, forcePlus bool, background bo
 	}
 	command := t.replacePlaceholder(template, forcePlus, string(t.input), list)
 	cmd := util.ExecCommand(command, false)
+	t.executing.Set(true)
 	if !background {
-		cmd.Stdin = os.Stdin
+		cmd.Stdin = tui.TtyIn()
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		t.tui.Pause(true)
-		t.executing.Set(true)
 		cmd.Run()
-		t.executing.Set(false)
 		t.tui.Resume(true, false)
 		t.redraw()
 		t.refresh()
 	} else {
 		t.tui.Pause(false)
-		t.executing.Set(true)
 		cmd.Run()
-		t.executing.Set(false)
 		t.tui.Resume(false, false)
 	}
+	t.executing.Set(false)
 	cleanTemporaryFiles()
 }
 
@@ -1970,6 +1989,7 @@ func (t *Terminal) Loop() {
 						}()
 
 						// Goroutine 2 periodically requests rendering
+						rendered := util.NewAtomicBool(false)
 						go func(version int64) {
 							lines := []string{}
 							spinner := makeSpinner(t.unicode)
@@ -1984,6 +2004,7 @@ func (t *Terminal) Loop() {
 										if spinnerIndex >= 0 {
 											spin := spinner[spinnerIndex%len(spinner)]
 											t.reqBox.Set(reqPreviewDisplay, previewResult{version, lines, offset, spin})
+											rendered.Set(true)
 											offset = -1
 										}
 										spinnerIndex++
@@ -2003,6 +2024,7 @@ func (t *Terminal) Loop() {
 									}
 									if err != nil {
 										t.reqBox.Set(reqPreviewDisplay, previewResult{version, lines, offset, ""})
+										rendered.Set(true)
 										break Loop
 									}
 								}
@@ -2024,7 +2046,13 @@ func (t *Terminal) Loop() {
 										util.KillCommand(cmd)
 										t.eventBox.Set(EvtQuit, code)
 									} else {
-										timer := time.NewTimer(previewCancelWait)
+										// We can immediately kill a long-running preview program
+										// once we started rendering its partial output
+										delay := previewCancelWait
+										if rendered.Get() {
+											delay = 0
+										}
+										timer := time.NewTimer(delay)
 										select {
 										case <-timer.C:
 											util.KillCommand(cmd)

@@ -514,6 +514,26 @@ Built-in configurations:~
 
 	Print num lines of trailing context after each match, default: `3`
 
+							*coc-config-hover*
+"hover.target":~
+
+	Target to show hover information, default is floating window when possible.
+
+	Valid options: ["preview", "echo", "float"]
+
+"hover.floatMaxWidth":~
+
+	Maximum width of hover float window, not bigger than 80.
+
+"hover.floatMaxHeight":~
+
+	Maximum height of hover float window.
+
+"hover.autoHide":~
+
+	Automatically hide hover float window on CursorMove or InsertEnter,
+	default `true`.
+
 							*coc-config-dialog*
 "dialog.maxWidth": ~
 
@@ -726,12 +746,6 @@ Built-in configurations:~
 	Check |coc-status| for statusline integration.
 
 	Default: `"SNIP"`
-
-"coc.preferences.hoverTarget":~
-
-	Target to show hover information, default is floating window when possible.
-
-	Valid options: ["preview", "echo", "float"]
 
 "coc.preferences.previewAutoClose":~
 
@@ -1732,12 +1746,15 @@ coc#util#install()  					*coc#util#install()*
 	Install dependencies and compile source code, not needed unless
 	you need compile typescript code.
 
-coc#float#close_all() 					*coc#float#close_all()*
+coc#float#has_float([{all}]) 				*coc#float#has_float()*
 
-	Close all float windows/popups.
+	Check if float window/popup exists, check coc.nvim's float
+	window/popup by default.
 
-	Note: Popup/float windows created by other plugins will also be
-	cleared.
+coc#float#close_all([{all}])				*coc#float#close_all()*
+
+	Close all float windows/popups created by coc.nvim, set {all} to `1`
+	for all float window/popups.
 
 coc#float#close({winid}) 				*coc#float#close()*
 
@@ -1745,7 +1762,9 @@ coc#float#close({winid}) 				*coc#float#close()*
 
 coc#float#has_scroll() 					*coc#float#has_scroll()*
 
-	Return `1` when there is scrollable float window or popup.
+	Return `1` when there is scrollable float window/popup created by
+	coc.nvim.
+
 	Example key-mappings:
 >
 	if has('nvim-0.4.0') || has('patch-8.2.0750')
@@ -1988,7 +2007,7 @@ Acceptable {action} names for |CocAction()| and |CocActionAsync|.
 	Rename the symbol under the cursor position, user will be prompted for
 	a new name.
 
-	Note: coc.nvim support rename for disk files, but your language server
+	Note: coc.nvim supports rename for disk files, but your language server
 	may not.
 
 "selectionRanges"					*coc-action-selectionRanges*
@@ -2187,6 +2206,14 @@ Acceptable {action} names for |CocAction()| and |CocActionAsync|.
 	Get workspace symbols from {input} and optional {bufnr} (use current
 	bufnr when empty).
 
+"toggleDiagnosticBuffer" [{bufnr}]		 *coc-action-toggleDiagnosticBuffer*
+
+	Toggle diagnostics for specific buffer, current buffer is used when
+	{bufnr} not provided.
+
+	Note: this will only affect diagnostics shown in the UI, list of all
+	diagnostics won't change.
+
 ------------------------------------------------------------------------------
 COMMANDS						*coc-commands*
 
@@ -2370,8 +2397,8 @@ AUTOCMD							*coc-autocmds*
 
 	For example, to disable auto preview of location list, use:
 >
-	let g:coc_enable_locationlist = 0 autocmd User CocLocationsChange
-	CocList --normal location
+	let g:coc_enable_locationlist = 0
+	autocmd User CocLocationsChange CocList --normal location
 <
 						*CocNvimInit*
 :autocmd User CocNvimInit {command}

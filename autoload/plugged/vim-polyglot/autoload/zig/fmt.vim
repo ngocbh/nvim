@@ -12,11 +12,13 @@ function! zig#fmt#Format() abort
   " Save cursor position and many other things.
   let view = winsaveview()
 
-  let current_buf = bufnr('')
+  if !executable('zig')
+    echohl Error | echomsg "no zig binary found in PATH" | echohl None
+    return
+  endif
 
-  let bin_path = get(g:, 'zig_bin_path', 'zig')
-  let stderr_file = tempname()
-  let cmdline = printf('%s fmt --stdin 2> %s', bin_path, stderr_file)
+  let cmdline = 'zig fmt --stdin'
+  let current_buf = bufnr('')
 
   " The formatted code is output on stdout, the errors go on stderr.
   if exists('*systemlist')
@@ -31,14 +33,18 @@ function! zig#fmt#Format() abort
     try | silent undojoin | catch | endtry
 
     " Replace the file content with the formatted version.
-    call deletebufline(current_buf, len(out), line('$'))
+    if exists('*deletebufline')
+      call deletebufline(current_buf, len(out), line('$'))
+    else
+      silent execute ':' . len(out) . ',' . line('$') . ' delete _'
+    endif
     call setline(1, out)
 
     " No errors detected, close the loclist.
     call setloclist(0, [], 'r')
     lclose
   elseif get(g:, 'zig_fmt_parse_errors', 1)
-    let errors = s:parse_errors(expand('%'), readfile(stderr_file))
+    let errors = s:parse_errors(expand('%'), out)
 
     call setloclist(0, [], 'r', {
         \ 'title': 'Errors',
@@ -49,10 +55,8 @@ function! zig#fmt#Format() abort
     " Prevent the loclist from becoming too long.
     let win_height = min([max_win_height, len(errors)])
     " Open the loclist, but only if there's at least one error to show.
-    execute 'lwindow ' . win_height
+    execute 'silent! lwindow ' . win_height
   endif
-
-  call delete(stderr_file)
 
   call winrestview(view)
 
