@@ -105,7 +105,7 @@ call plug#begin('~/.config/nvim/autoload/plugged')
     Plug 'neomake/neomake'
     " Snippets
     Plug 'honza/vim-snippets'
-    Plug 'mattn/emmet-vim'
+    "Plug 'mattn/emmet-vim'
     
     " Plug 'SirVer/ultisnips'
     " Better Comments
